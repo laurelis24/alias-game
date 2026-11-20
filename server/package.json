@@ -7,10 +7,12 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "format": "npx prettier . --write"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "prettier": "3.10.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
