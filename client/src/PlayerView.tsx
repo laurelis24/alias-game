@@ -24,7 +24,7 @@ export default function PlayerView({ setRoom, setWord, setError }: GuestView) {
     }
 
     const { player, error, room, timeLeft, word } = gameValues;
- console.log(room);
+
     const handleLeaveGame = () => {
         if (!confirm("Vai tiešām vēlaties pamest spēli!?")) {
             return;
@@ -52,7 +52,7 @@ export default function PlayerView({ setRoom, setWord, setError }: GuestView) {
         setError("");
 
         socket.emit(event, ...(payload !== undefined ? [payload] : []), (result: ApiResult) => {
-            console.log("SERVER RESPONSE:", result);
+            //console.log("SERVER RESPONSE:", result);
 
             if (result?.success === false) {
                 setError(result.message || "Kaut kas neizdevās!");

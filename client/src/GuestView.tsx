@@ -3,7 +3,6 @@ import { socket } from "./socket";
 import { type GameRoom } from "./App";
 import { type Dispatch, type SetStateAction } from "react";
 
-
 interface ApiResult {
     success: boolean;
     message?: string;

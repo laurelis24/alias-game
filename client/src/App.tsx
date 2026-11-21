@@ -5,7 +5,6 @@ import "./style.css";
 import GuestView from "./GuestView";
 import PlayerView from "./PlayerView";
 
-
 export type Team = "red" | "blue";
 type Status = "waiting" | "playing" | "paused" | "finished";
 
@@ -117,7 +116,6 @@ export default function App() {
         return () => window.clearInterval(timer);
     }, [room?.roundEndsAt, room?.status, serverOffset]);
 
-   
     if (!room) {
         return (
             <GuestView

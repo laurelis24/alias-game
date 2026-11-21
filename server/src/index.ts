@@ -1,23 +1,29 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { Server } from "socket.io";
-import { createServer } from "node:http";
+// import { createServer } from "node:http";
 import fastifyStatic from "@fastify/static";
+//import db from "./database.js";
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import wordsDatabase from "../words.json" with { type: "json" };
+import saveGameStats from "./stats.js";
+import statsRoutes from "./routes/stats.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const clientDist = path.resolve(__dirname, "../../client/dist");
-
 
 const totalMsPerRound = 60_000;
 
 const app = Fastify({ logger: true });
 
 await app.register(cors, { origin: true });
+
+await app.register(statsRoutes, {
+  prefix: "/api",
+});
 
 await app.register(fastifyStatic, {
   root: clientDist,
@@ -34,7 +40,7 @@ const io = new Server(app.server, {
 type Team = "red" | "blue";
 type Status = "waiting" | "playing" | "paused" | "finished";
 
-interface Player {
+export interface Player {
   id: string; // persistent browser ID
   socketId: string | null; // current connection ID
   nickname: string;
@@ -42,7 +48,7 @@ interface Player {
   team: Team | null;
 }
 
-interface GameRoom {
+export interface GameRoom {
   code: string;
   players: Player[];
   status: Status;
@@ -71,8 +77,6 @@ interface ApiResponse {
   message: string;
 }
 
-
-
 const rooms = new Map<string, GameRoom>();
 const WORDS: string[] = [...new Set(Object.values(wordsDatabase).flat())];
 
@@ -89,7 +93,7 @@ function publicRoom(room: GameRoom): PublicRoom {
   return {
     ...rest,
     players: room.players.map(({ socketId: _socket, ...player }) => player),
-    availableWords:[],
+    availableWords: [],
     serverTime: Date.now(),
   };
 }
@@ -400,18 +404,37 @@ io.on("connection", (socket) => {
 
   socket.on("game:end", (reply) => {
     const room = [...rooms.values()].find((r) => playerBySocket(r, socket.id));
+
     const player = room && playerBySocket(room, socket.id);
-    if (!room || !player?.isHost)
+
+    if (!room || !player?.isHost) {
       return reply?.({
         success: false,
         message: "Tikai vadītājs var beigt spēli.",
       });
-    room.status = "finished";
-    room.roundEndsAt = null;
+    }
 
-    rooms.delete(room.code);
-    updateRoom(room);
-    reply?.({ success: true });
+    try {
+      const gameId = saveGameStats(room);
+
+      room.status = "finished";
+      room.roundEndsAt = null;
+
+      rooms.delete(room.code);
+      updateRoom(room);
+
+      reply?.({
+        success: true,
+        gameId,
+      });
+    } catch (error) {
+      console.error("Failed to save game statistics:", error);
+
+      reply?.({
+        success: false,
+        message: "Neizdevās saglabāt spēles statistiku.",
+      });
+    }
   });
 
   socket.on("game:leave", (reply) => {
@@ -449,7 +472,6 @@ setInterval(() => {
 }, 500);
 
 const PORT = Number(process.env.PORT || 3001);
-
 
 try {
   await app.listen({
