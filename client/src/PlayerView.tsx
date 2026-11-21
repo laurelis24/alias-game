@@ -24,7 +24,7 @@ export default function PlayerView({ setRoom, setWord, setError }: GuestView) {
     }
 
     const { player, error, room, timeLeft, word } = gameValues;
-
+ console.log(room);
     const handleLeaveGame = () => {
         if (!confirm("Vai tiešām vēlaties pamest spēli!?")) {
             return;

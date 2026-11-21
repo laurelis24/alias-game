@@ -1,7 +1,6 @@
 import { DoorOpen, Flag, Play, Trophy } from "lucide-react";
-import { socket } from "./socket";
 import type { Team } from "./App";
-import { round } from "three/tsl";
+
 
 interface ModalProps {
     isHost: boolean;
@@ -23,40 +22,7 @@ export default function Modal({
     handleEndGame,
 }: ModalProps) {
     return (
-        // <div className="pause-overlay">
-        //   <div className="pause-modal">
-        //     <div className="pause-icon-wrapper">
-        //       <div className="pause-icon">Ⅱ</div>
-        //     </div>
-
-        //     <span className="pause-subtitle">GAME STATUS</span>
-
-        //     <h2>GAME PAUSED</h2>
-
-        //     <p className="pause-description">
-        //       Spēle ir apturēta. Atpūties, drīz turpināsim!
-        //     </p>
-
-        //     {isHost ? (
-        //       <button
-        //         className="resume-button"
-        //         onClick={() => socket.emit("game:resume")}
-        //       >
-        //         <span>▶</span> RESUME GAME
-        //       </button>
-        //     ) : (
-        //       <div className="pause-waiting">
-        //         <span className="waiting-dot"></span>
-        //         Gaida, kad spēles vadītājs atsāks spēli...
-        //       </div>
-        //     )}
-
-        //     <small>
-        //       Ⅱ &nbsp; ONLY THE HOST CAN RESUME THE GAME
-        //     </small>
-        //   </div>
-        // </div>
-
+      
         <div className="absolute inset-0 z-30 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-5 animate-card-pop">
             <div className="w-full bg-white rounded-3xl p-6 shadow-2xl text-center border-2 border-red-100">
                 <div className="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3">

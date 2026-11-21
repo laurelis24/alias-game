@@ -1,8 +1,8 @@
-import { BookOpen, Crown, Hourglass, ShieldAlert, Sparkles, UserPlus } from "lucide-react";
+import { BookOpen, Crown, ShieldAlert, Sparkles, UserPlus } from "lucide-react";
 import { socket } from "./socket";
 import { type GameRoom } from "./App";
-import { useEffect, useEffectEvent, useState, type Dispatch, type SetStateAction } from "react";
-import { HourglassTimer } from "./HourglassTimer";
+import { type Dispatch, type SetStateAction } from "react";
+
 
 interface ApiResult {
     success: boolean;

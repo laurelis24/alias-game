@@ -2,9 +2,34 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
+import fastifyStatic from "@fastify/static";
+
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import wordsDatabase from "../words.json" with { type: "json" };
 
-const totalMsPerRound = 3000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDist = path.resolve(__dirname, "../../client/dist");
+
+
+const totalMsPerRound = 60_000;
+
+const app = Fastify({ logger: true });
+
+await app.register(cors, { origin: true });
+
+await app.register(fastifyStatic, {
+  root: clientDist,
+  prefix: "/",
+});
+
+// Attach Socket.IO to Fastify's existing HTTP server
+const io = new Server(app.server, {
+  cors: {
+    origin: true,
+  },
+});
 
 type Team = "red" | "blue";
 type Status = "waiting" | "playing" | "paused" | "finished";
@@ -46,10 +71,7 @@ interface ApiResponse {
   message: string;
 }
 
-const app = Fastify({ logger: true });
-await app.register(cors, { origin: true });
-const httpServer = createServer(app.server);
-const io = new Server(httpServer, { cors: { origin: "*" } });
+
 
 const rooms = new Map<string, GameRoom>();
 const WORDS: string[] = [...new Set(Object.values(wordsDatabase).flat())];
@@ -67,6 +89,7 @@ function publicRoom(room: GameRoom): PublicRoom {
   return {
     ...rest,
     players: room.players.map(({ socketId: _socket, ...player }) => player),
+    availableWords:[],
     serverTime: Date.now(),
   };
 }
@@ -156,9 +179,13 @@ function leaveRoom(socketId: string) {
   }
 }
 
-app.get("/", async () => {
-  return { ok: true };
-});
+// app.get("/", async (_request, reply) => {
+//   return reply.sendFile("index.html");
+// });
+
+// app.setNotFoundHandler(async (_request, reply) => {
+//   return reply.sendFile("index.html");
+// });
 
 io.on("connection", (socket) => {
   socket.on(
@@ -423,6 +450,15 @@ setInterval(() => {
 
 const PORT = Number(process.env.PORT || 3001);
 
-httpServer.listen(PORT, "0.0.0.0", () => {
-  app.log.info(`Alias server listening on ${PORT}`);
-});
+
+try {
+  await app.listen({
+    port: PORT,
+    host: "0.0.0.0",
+  });
+
+  app.log.info(`Server running on port ${PORT}`);
+} catch (err) {
+  app.log.error(err);
+  process.exit(1);
+}

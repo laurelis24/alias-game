@@ -1,58 +1,10 @@
-import { createContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { createContext, useEffect, useState } from "react";
 import { socket } from "./socket";
 import "./style.css";
-import Modal from "./Modal";
-//import Hourglass from "./Hourglass";
 
-import { useContext } from "react";
 import GuestView from "./GuestView";
 import PlayerView from "./PlayerView";
 
-const CUSTOM_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
-
-  .alias-app-font {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  .alias-display-font {
-    font-family: 'Fredoka', cursive, sans-serif;
-  }
-
-  /* Smilšu pulksteņa smilšu plūsmas animācija (bez apgriešanās) */
-  @keyframes sandStream {
-    0%, 100% { opacity: 0.95; stroke-dashoffset: 0; }
-    50% { opacity: 0.55; stroke-dashoffset: 5; }
-  }
-
-  .animate-sand-stream {
-    animation: sandStream 0.55s linear infinite;
-  }
-
-  /* Vārda kartītes uzniršanas animācija */
-  @keyframes cardPop {
-    0% {
-      opacity: 0;
-      transform: scale(0.92) translateY(12px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  .animate-card-pop {
-    animation: cardPop 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  }
-
-  /* Taktīlo pogu nospiešanas efekts */
-  .btn-tactile {
-    transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, background-color 0.15s ease;
-  }
-  .btn-tactile:active:not(:disabled) {
-    transform: translateY(3px) scale(0.98);
-  }
-`;
 
 export type Team = "red" | "blue";
 type Status = "waiting" | "playing" | "paused" | "finished";
@@ -165,28 +117,7 @@ export default function App() {
         return () => window.clearInterval(timer);
     }, [room?.roundEndsAt, room?.status, serverOffset]);
 
-    // const createGame = () => {
-    //   if (!nickname.trim()) return setError("Vispirms ievadi savu iesauku.");
-    //   socket.emit("game:create", { playerId, nickname }, (result: ApiResult) => {
-    //     if (!result?.success || !result.room) return setError(result?.message || "Neizdevās izveidot istabu.");
-    //     localStorage.setItem("aliasRoomCode", result.room.code);
-    //     setRoom(result.room);
-    //     setRoomCode(result.room.code);
-    //     setError("");
-    //   });
-    // };
-
-    // const joinGame = () => {
-    //   if (!nickname.trim()) return setError("Vispirms ievadi savu iesauku.");
-    //   if (!roomCode.trim()) return setError("Ievadi istabas kodu.");
-    //   socket.emit("game:join", { playerId, nickname, code: roomCode.trim() }, (result: ApiResult) => {
-    //     if (!result?.success || !result.room) return setError(result?.message || "Neizdevās pievienoties.");
-    //     localStorage.setItem("aliasRoomCode", result.room.code);
-    //     setRoom(result.room);
-    //     setError("");
-    //   });
-    // };
-
+   
     if (!room) {
         return (
             <GuestView
@@ -213,44 +144,8 @@ export default function App() {
     return (
         <GameValuesContext value={gameValues}>
             <div className="min-h-screen bg-slate-200/80 flex flex-col items-center justify-center p-0 sm:p-4 alias-app-font select-none">
-                {/* <style>{CUSTOM_STYLES}</style> */}
-
-                {/* <div className="relative w-full sm:max-w-[420px] h-screen sm:h-[812px] bg-white sm:rounded-[36px] sm:border-[8px] sm:border-slate-900 shadow-2xl overflow-hidden flex flex-col"> */}
-
                 <PlayerView setRoom={setRoom} setWord={setWord} setError={setError} />
-                {/* </div> */}
             </div>
         </GameValuesContext>
     );
-
-    // if (!room) {
-    //   return (
-    //     <main className="app-shell">
-    //       <section className="game-card">
-    //         <h1>ALIAS</h1>
-    //         <p className="subtitle">Izskaidro vārdu. Palīdzi savai komandai uzvarēt!</p>
-    //         <label htmlFor="nickname">Tava iesauka</label>
-    //         <input id="nickname" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Ievadi iesauku" maxLength={20} />
-    //         <button onClick={createGame}>Izveidot spēli</button>
-    //         <div className="separator">vai pievienojies spēlei</div>
-    //         <label htmlFor="room-code">Istabas kods</label>
-    //         <input id="room-code" value={roomCode} onChange={e => setRoomCode(e.target.value)} placeholder="Piemēram, 123" maxLength={3} />
-    //         <button className="secondary" onClick={joinGame}>Pievienoties</button>
-    //         {error && <p className="error">{error}</p>}
-    //       </section>
-    //     </main>
-    //   );
-    // }
-
-    //const redPlayers = room.players.filter(p => p.team === "red");
-    //const bluePlayers = room.players.filter(p => p.team === "blue");
-
-    // return (
-    //   <div className="min-h-screen bg-slate-200/80 flex flex-col items-center justify-center p-0 sm:p-4 alias-app-font select-none">
-
-    //     <div className="relative w-full sm:max-w-[420px] h-screen sm:h-[812px] bg-white sm:rounded-[36px] sm:border-[8px] sm:border-slate-900 shadow-2xl overflow-hidden flex flex-col">
-
-    //     </div>
-    //   </div>
-    // )
 }
