@@ -28,6 +28,7 @@ export interface GameRoom {
     serverTime: number;
     timerTime: number;
     totalMsPerRound: number;
+    usedRoundWords: { word: string; guessed: boolean }[];
 }
 
 interface ApiResult {

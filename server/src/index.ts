@@ -62,6 +62,7 @@ export interface GameRoom {
   turnCounts: Record<Team, number>;
   availableWords: string[];
   totalMsPerRound: number;
+  usedRoundWords: {word:string, guessed:boolean}[];
 }
 
 type PublicRoom = Omit<
@@ -183,13 +184,6 @@ function leaveRoom(socketId: string) {
   }
 }
 
-// app.get("/", async (_request, reply) => {
-//   return reply.sendFile("index.html");
-// });
-
-// app.setNotFoundHandler(async (_request, reply) => {
-//   return reply.sendFile("index.html");
-// });
 
 io.on("connection", (socket) => {
   socket.on(
@@ -220,6 +214,7 @@ io.on("connection", (socket) => {
         turnCounts: { red: 0, blue: 0 },
         availableWords: [...WORDS],
         totalMsPerRound: totalMsPerRound,
+        usedRoundWords: [],
       };
       rooms.set(code, room);
       socket.data.playerId = playerId;
@@ -342,6 +337,7 @@ io.on("connection", (socket) => {
       });
 
     room.scorePerRound += 1;
+    room.usedRoundWords.push({word: room.currentWord, guessed: true})
 
     newWord(room);
     updateRoom(room);
@@ -362,6 +358,7 @@ io.on("connection", (socket) => {
       });
 
     room.scorePerRound -= 1;
+    room.usedRoundWords.push({word: room.currentWord, guessed: false})
 
     updateRoom(room);
     newWord(room);
@@ -390,13 +387,13 @@ io.on("connection", (socket) => {
     if (!room || !player?.isHost || room.status !== "paused")
       return reply?.({ success: false, message: "Spēli nevar atsākt." });
 
-    console.log(room.players);
 
     room.scorePerRound = 0;
     room.roundEndsAt = Date.now() + totalMsPerRound;
     room.pausedTimeLeft = null;
     room.status = "playing";
-    //updateRoom(room);
+    room.usedRoundWords = [];
+    
     nextRound(room);
     sendWord(room);
     reply?.({ success: true });

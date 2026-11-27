@@ -453,6 +453,7 @@ export default function PlayerView({ setRoom, setWord, setError }: GuestView) {
                     scores={room.scores}
                     scorePerRound={room.scorePerRound}
                     currentTeam={room.currentTeam}
+                    usedRoundWords={room.usedRoundWords}
                     handleLeaveGame={handleLeaveGame}
                     handleResumeGame={handleResumeGame}
                     handleEndGame={handleEndGame}

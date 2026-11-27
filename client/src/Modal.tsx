@@ -1,11 +1,13 @@
 import { DoorOpen, Flag, Play, Trophy } from "lucide-react";
 import type { Team } from "./App";
+import { useState } from "react";
 
 interface ModalProps {
     isHost: boolean;
     scores: Record<Team, number>;
     scorePerRound: number;
     currentTeam: Team;
+    usedRoundWords: { word: string; guessed: boolean }[];
     handleLeaveGame: () => void;
     handleResumeGame: () => void;
     handleEndGame: () => void;
@@ -16,10 +18,13 @@ export default function Modal({
     scorePerRound,
     currentTeam,
     scores,
+    usedRoundWords,
     handleResumeGame,
     handleLeaveGame,
     handleEndGame,
 }: ModalProps) {
+    const [isOpen, setIsOpen] = useState(false);
+
     return (
         <div className="absolute inset-0 z-30 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-5 animate-card-pop">
             <div className="w-full bg-white rounded-3xl p-6 shadow-2xl text-center border-2 border-red-100">
@@ -49,6 +54,43 @@ export default function Modal({
                         <div className="text-xs font-extrabold text-blue-600">BLUE KOPĀ</div>
                         <div className="alias-display-font text-2xl font-bold text-blue-900">{scores.blue}</div>
                     </div>
+                </div>
+
+                <div className="w-full rounded-xl">
+                    <button
+                        type="button"
+                        disabled={usedRoundWords.length === 0}
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="flex w-full items-center justify-between p-3 text-left hover:bg-gray-50"
+                        aria-expanded={isOpen}
+                    >
+                        <div>
+                            <span className="font-semibold text-gray-800">Vārdi</span>
+                            <span className="ml-2 text-sm text-gray-500">({usedRoundWords.length})</span>
+                        </div>
+
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-lg font-bold">
+                            {isOpen ? "−" : "+"}
+                        </span>
+                    </button>
+
+                    {isOpen && (
+                        <div className="max-h-64 overflow-y-auto border border-red-300 border-y-0">
+                            <ul className="divide-y divide-gray-100">
+                                {usedRoundWords.map((list, index) => (
+                                    <li
+                                        key={`${list.word}-${index}`}
+                                        className="flex items-center justify-between px-4 py-2.5 text-sm"
+                                    >
+                                        <span className={list.guessed ? "text-green-500" : "text-red-500"}>
+                                            {list.word}
+                                        </span>
+                                        <span className="text-xs text-gray-400">#{index + 1}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 {/* Pogas: Turpināt un Beigt spēli (adminam) / Pamest spēli */}
